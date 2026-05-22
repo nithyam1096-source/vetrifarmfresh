@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Order #{{ order.id }} - Vetri Farm Fresh{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'marketplace:my_orders' %}">My Orders</a></li>
+            <li class="breadcrumb-item active">Order #{{ order.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold mb-0">Order #{{ order.id }}</h4>
+                        {% if order.order_status == 'delivered' %}
+                            <span class="badge bg-success fs-6">{{ order.get_order_status_display }}</span>
+                        {% elif order.order_status == 'cancelled' %}
+                            <span class="badge bg-danger fs-6">{{ order.get_order_status_display }}</span>
+                        {% else %}
+                            <span class="badge bg-info fs-6">{{ order.get_order_status_display }}</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-muted"><i class="bi bi-calendar"></i> Ordered on: {{ order.ordered_date|date:"d M Y, h:i A" }}</p>
+                    <p class="text-muted"><i class="bi bi-clock"></i> Delivery Slot: {{ order.delivery_slot }}</p>
+
+                    <div class="mt-3">
+                        <h6>Delivery Address</h6>
+                        <p class="text-muted">{{ order.delivery_address }}</p>
+                    </div>
+
+                    <div class="mt-3 mb-4">
+                        <h6>Tracking</h6>
+                        <div class="progress" style="height: 8px;">
+                            {% if order.order_status == 'pending' %}
+                                <div class="progress-bar bg-warning" style="width: 10%"></div>
+                            {% elif order.order_status == 'confirmed' %}
+                                <div class="progress-bar bg-info" style="width: 25%"></div>
+                            {% elif order.order_status == 'packed' %}
+                                <div class="progress-bar bg-primary" style="width: 40%"></div>
+                            {% elif order.order_status == 'shipped' %}
+                                <div class="progress-bar bg-primary" style="width: 60%"></div>
+                            {% elif order.order_status == 'out_for_delivery' %}
+                                <div class="progress-bar bg-info" style="width: 80%"></div>
+                            {% elif order.order_status == 'delivered' %}
+                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                            {% elif order.order_status == 'cancelled' %}
+                                <div class="progress-bar bg-danger" style="width: 100%"></div>
+                            {% endif %}
+                        </div>
+                        <div class="row mt-2 text-center small">
+                            <div class="col">Pending</div>
+                            <div class="col">Confirmed</div>
+                            <div class="col">Packed</div>
+                            <div class="col">Shipped</div>
+                            <div class="col">Delivered</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <h6>Order Items</h6>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+                                <tbody>
+                                    {% for item in order.items.all %}
+                                        <tr>
+                                            <td>{{ item.product_name }}</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>₹{{ item.price }}</td>
+                                            <td>₹{{ item.quantity|floatformat:"0"|add:"0" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="fw-bold">
+                                        <td colspan="3">Total</td>
+                                        <td>₹{{ order.total_amount }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 d-flex gap-2">
+                        {% if order.order_status == 'pending' or order.order_status == 'confirmed' %}
+                            <a href="{% url 'marketplace:cancel_order' order.id %}" class="btn btn-outline-danger" onclick="return confirm('Cancel this order?')">Cancel Order</a>
+                        {% endif %}
+                        {% if order.order_status == 'delivered' %}
+                            <a href="{% url 'marketplace:download_invoice' order.id %}" class="btn btn-outline-success"><i class="bi bi-download"></i> Download Invoice</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body">
+                    <h6 class="fw-bold">Payment Info</h6>
+                    <p class="mb-1"><small>Method: {{ order.get_payment_method_display }}</small></p>
+                    <p class="mb-1"><small>Status: 
+                        {% if order.payment_status == 'completed' %}
+                            <span class="text-success">Paid</span>
+                        {% else %}
+                            <span class="text-warning">Pending</span>
+                        {% endif %}
+                    </small></p>
+                    {% if order.transaction_id %}
+                        <p class="mb-0"><small>Transaction: {{ order.transaction_id }}</small></p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if order.delivery %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="fw-bold">Delivery Info</h6>
+                        <p class="mb-1"><small>Agent: {{ order.delivery.delivery_agent.user.get_full_name|default:"Assigned" }}</small></p>
+                        <p class="mb-1"><small>Status: {{ order.delivery.get_delivery_status_display }}</small></p>
+                        {% if order.delivery.current_location %}
+                            <p class="mb-0"><small>Location: {{ order.delivery.current_location }}</small></p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

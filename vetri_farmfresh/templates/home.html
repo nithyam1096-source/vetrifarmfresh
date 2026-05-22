@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Vetri Farm Fresh - Fresh from Farm to Table{% endblock %}
+
+{% block content %}
+<div class="hero-section bg-success text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold">Fresh from Farm <br>to Your Table</h1>
+                <p class="lead mb-4">Connect directly with local farmers and get the freshest agricultural products delivered to your doorstep.</p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'marketplace:product_list' %}" class="btn btn-light btn-lg px-4 fw-bold">Shop Now</a>
+                    <a href="{% url 'accounts:farmer_register' %}" class="btn btn-outline-light btn-lg px-4">Sell as Farmer</a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=600" alt="Fresh vegetables" class="img-fluid rounded-4 shadow" style="max-height: 400px;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row text-center mb-5">
+        <h2 class="fw-bold">Why Choose Vetri Farm Fresh?</h2>
+        <p class="text-muted">We bridge the gap between farmers and consumers</p>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-basket fs-1 text-success"></i>
+                    <h5>Farm Fresh Products</h5>
+                    <p class="text-muted">Directly sourced from local farms, harvested at peak freshness.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-truck fs-1 text-success"></i>
+                    <h5>Fast Delivery</h5>
+                    <p class="text-muted">Schedule delivery slots that work for you. Morning or evening options available.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-currency-rupee fs-1 text-success"></i>
+                    <h5>Fair Prices</h5>
+                    <p class="text-muted">No middlemen. Farmers get fair prices, you get great value.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-leaf fs-1 text-success"></i>
+                    <h5>Organic Options</h5>
+                    <p class="text-muted">Wide range of organic and naturally grown products.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Featured Products</h2>
+                <p class="text-muted mb-0">Handpicked fresh produce just for you</p>
+            </div>
+            <a href="{% url 'marketplace:product_list' %}" class="btn btn-outline-success">View All <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-4">
+            {% for product in featured_products %}
+                <div class="col-lg-3 col-md-6">
+                    <div class="card product-card h-100 border-0 shadow-sm position-relative overflow-hidden">
+                        {% if product.is_featured %}
+                            <div class="featured-badge">
+                                <i class="bi bi-star-fill"></i> Featured
+                            </div>
+                        {% endif %}
+                        {% if product.original_price and product.original_price > product.price %}
+                            <div class="discount-badge">
+                                -{{ product.original_price|add:product.price|floatformat:"0" }}%
+                            </div>
+                        {% endif %}
+                        {% if product.is_organic %}
+                            <div class="organic-badge">Organic</div>
+                        {% endif %}
+                        <div class="product-img-wrapper">
+                            {% if product.product_image %}
+                                <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 220px;">
+                                    <i class="bi bi-image text-white fs-1"></i>
+                                </div>
+                            {% endif %}
+                            <div class="product-img-overlay">
+                                <a href="{% url 'marketplace:product_detail' product.id %}" class="btn btn-light btn-sm rounded-pill"><i class="bi bi-eye"></i> Quick View</a>
+                            </div>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <h6 class="card-title fw-bold mb-0 product-name">{{ product.name }}</h6>
+                            </div>
+                            <p class="text-muted small mb-2">
+                                <i class="bi bi-shop"></i> {{ product.farmer.farm_name|truncatechars:18 }}
+                            </p>
+                            <div class="mt-auto">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="fw-bold text-success fs-5">₹{{ product.price }}</span>
+                                    <small class="text-muted">/ {{ product.unit }}</small>
+                                    {% if product.original_price and product.original_price > product.price %}
+                                        <span class="text-decoration-line-through text-muted small">₹{{ product.original_price }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <div class="rating-stars">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-half text-warning"></i>
+                                    </div>
+                                    <small class="text-muted">(24)</small>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'marketplace:add_to_cart' product.id %}" class="btn btn-success btn-sm flex-grow-1">
+                                        <i class="bi bi-cart-plus"></i> Add
+                                    </a>
+                                    <a href="{% url 'marketplace:add_to_wishlist' product.id %}" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-heart"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-box-seam display-1 text-muted"></i>
+                    <p class="text-muted mt-3">No featured products available yet. Check back soon!</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% if organic_products %}
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1"><i class="bi bi-leaf text-success"></i> Organic Picks</h2>
+                <p class="text-muted mb-0">Certified organic produce from trusted farms</p>
+            </div>
+            <a href="{% url 'marketplace:product_list' %}?organic=true" class="btn btn-outline-success btn-sm">View All <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-3">
+            {% for product in organic_products %}
+                <div class="col-lg-3 col-md-6">
+                    <div class="card border-0 shadow-sm h-100 organic-card">
+                        <div class="position-relative">
+                            {% if product.product_image %}
+                                <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 160px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 160px;">
+                                    <i class="bi bi-image text-white fs-1"></i>
+                                </div>
+                            {% endif %}
+                            <span class="position-absolute top-0 end-0 m-2 badge rounded-pill bg-success">
+                                <i class="bi bi-check-circle"></i> Organic
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-1">{{ product.name }}</h6>
+                            <p class="text-muted small mb-1">{{ product.farmer.farm_name|truncatechars:18 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-success">₹{{ product.price }}<small class="text-muted">/{{ product.unit }}</small></span>
+                                <a href="{% url 'marketplace:add_to_cart' product.id %}" class="btn btn-sm btn-outline-success"><i class="bi bi-cart-plus"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="container py-5">
+    <div class="row text-center mb-4">
+        <h2 class="fw-bold">Shop by Category</h2>
+        <p class="text-muted">Explore our wide range of agricultural products</p>
+    </div>
+    <div class="row g-3">
+        {% for category in categories %}
+            <div class="col-md-2 col-6">
+                <a href="{% url 'marketplace:product_list' %}?category={{ category.id }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm text-center category-card">
+                        <div class="card-body py-4">
+                            {% if category.image %}
+                                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="rounded-circle mb-2" style="width: 60px; height: 60px; object-fit: cover;">
+                            {% else %}
+                                <i class="bi bi-box-seam display-6 text-success"></i>
+                            {% endif %}
+                            <h6 class="fw-bold mt-2">{{ category.name }}</h6>
+                            <small class="text-muted">{{ category.product_count }} items</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="bg-success text-white py-5 text-center">
+    <div class="container">
+        <h2 class="fw-bold">Are You a Farmer?</h2>
+        <p class="lead mb-4">Join Vetri Farm Fresh and sell your products directly to customers. No middlemen, better profits!</p>
+        <a href="{% url 'accounts:farmer_register' %}" class="btn btn-light btn-lg px-5 fw-bold">Register as Farmer</a>
+    </div>
+</div>
+
+<style>
+.product-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.12) !important;
+}
+
+.product-img-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+.product-img-wrapper img {
+    height: 220px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.product-card:hover .product-img-wrapper img {
+    transform: scale(1.08);
+}
+
+.product-img-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.product-card:hover .product-img-overlay {
+    opacity: 1;
+}
+
+.featured-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(135deg, #FF6B35, #FF3D00);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 2px 8px rgba(255, 61, 0, 0.3);
+}
+.featured-badge i {
+    font-size: 0.6rem;
+}
+
+.discount-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #e53935, #b71c1c);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(229, 57, 53, 0.3);
+}
+
+.organic-badge {
+    position: absolute;
+    top: 42px;
+    left: 10px;
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    z-index: 2;
+}
+
+.product-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.rating-stars {
+    font-size: 0.7rem;
+    line-height: 1;
+}
+
+.organic-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+.organic-card:hover {
+    transform: translateY(-4px);
+}
+
+.card-img-top {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+</style>
+{% endblock %}

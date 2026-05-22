@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sales Report - Vetri Farm Fresh{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-4"><i class="bi bi-graph-up"></i> Sales Report</h2>
+    
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-currency-rupee display-6"></i>
+                    <h3 class="fw-bold">₹{{ total_sales }}</h3>
+                    <p class="mb-0">Total Revenue</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-cart-check display-6"></i>
+                    <h3 class="fw-bold">{{ total_orders }}</h3>
+                    <p class="mb-0">Completed Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-box-seam display-6"></i>
+                    <h3 class="fw-bold">{{ products.count }}</h3>
+                    <p class="mb-0">Products Listed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white fw-bold">Sales History</div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Order #</th>
+                            <th>Product</th>
+                            <th>Customer</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order_items %}
+                            <tr>
+                                <td>#{{ item.order.id }}</td>
+                                <td>{{ item.product.name }}</td>
+                                <td>{{ item.order.customer.user.username }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>₹{{ item.price }}</td>
+                                <td>₹{{ item.quantity|floatformat:"0" }}</td>
+                                <td>{{ item.order.ordered_date|date:"d M Y" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="7" class="text-center text-muted">No sales data available yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

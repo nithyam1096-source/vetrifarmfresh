@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ product.name }} - Vetri Farm Fresh{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'marketplace:product_list' %}">Products</a></li>
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-md-5">
+            {% if product.product_image %}
+                <img src="{{ product.product_image.url }}" class="img-fluid rounded-4 shadow" alt="{{ product.name }}" style="width: 100%; max-height: 400px; object-fit: cover;">
+            {% else %}
+                <div class="bg-secondary rounded-4 d-flex align-items-center justify-content-center" style="height: 400px;">
+                    <i class="bi bi-image text-white fs-1"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-7">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <h2 class="fw-bold mb-0">{{ product.name }}</h2>
+                {% if product.is_organic %}
+                    <span class="badge bg-success fs-6">Organic</span>
+                {% endif %}
+            </div>
+            <p class="text-muted mb-1"><i class="bi bi-shop"></i> {{ product.farmer.farm_name }}</p>
+            <p class="text-muted mb-3"><i class="bi bi-tag"></i> {{ product.category.name }}</p>
+            <h3 class="text-success fw-bold mb-3">₹{{ product.price }} <small class="text-muted fs-6">/ {{ product.unit }}</small></h3>
+            <p class="mb-3">{{ product.description }}</p>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <small class="text-muted d-block"><i class="bi bi-box"></i> Stock: {{ product.stock_quantity }} {{ product.unit }}</small>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-muted d-block"><i class="bi bi-calendar"></i> Harvest: {{ product.harvest_date|date:"d M Y"|default:"N/A" }}</small>
+                </div>
+            </div>
+
+            {% if product.availability_status and product.stock_quantity > 0 %}
+                <div class="d-flex gap-2 mb-3">
+                    <a href="{% url 'marketplace:add_to_cart' product.id %}" class="btn btn-success btn-lg px-4"><i class="bi bi-cart-plus"></i> Add to Cart</a>
+                    <a href="{% url 'marketplace:add_to_wishlist' product.id %}" class="btn btn-outline-danger btn-lg px-3">
+                        <i class="bi {% if in_wishlist %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                    </a>
+                </div>
+            {% else %}
+                <div class="alert alert-warning">This product is currently out of stock.</div>
+            {% endif %}
+
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h6><i class="bi bi-truck text-success"></i> Delivery Info</h6>
+                    <p class="small text-muted mb-0">Available delivery slots: 6 AM - 8 AM, 9 AM - 12 PM, 1 PM - 4 PM, 5 PM - 8 PM</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-8">
+            <h4 class="fw-bold mb-4">Customer Reviews</h4>
+            {% if user.is_authenticated and user.customer %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5>{{ existing_review|yesno:"Edit Your Review,Write a Review" }}</h5>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">Rating</label>
+                                {{ form.rating }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Comment</label>
+                                {{ form.comment }}
+                            </div>
+                            <button type="submit" class="btn btn-success">Submit Review</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% for review in reviews %}
+                <div class="card border-0 shadow-sm mb-2">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="fw-bold">{{ review.customer.user.get_full_name|default:review.customer.user.username }}</h6>
+                            <div>
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    {% else %}
+                                        <i class="bi bi-star text-muted"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="text-muted mb-0">{{ review.comment }}</p>
+                        <small class="text-muted">{{ review.created_at|date:"d M Y" }}</small>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">No reviews yet. Be the first to review!</p>
+            {% endfor %}
+        </div>
+
+        <div class="col-md-4">
+            <h4 class="fw-bold mb-4">Related Products</h4>
+            {% for rel in related_products %}
+                <div class="card border-0 shadow-sm mb-2">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        {% if rel.product_image %}
+                            <img src="{{ rel.product_image.url }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                        {% else %}
+                            <div class="bg-secondary d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 8px;">
+                                <i class="bi bi-image text-white"></i>
+                            </div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0"><a href="{% url 'marketplace:product_detail' rel.id %}" class="text-decoration-none text-dark">{{ rel.name }}</a></h6>
+                            <small class="text-success fw-bold">₹{{ rel.price }}/{{ rel.unit }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">No related products.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

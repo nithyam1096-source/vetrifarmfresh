@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Vetri Farm Fresh{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+                <i class="bi bi-tree-fill"></i> Vetri Farm Fresh
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'marketplace:product_list' %}">Products</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Categories</a>
+                        <ul class="dropdown-menu">
+                            {% if categories %}
+                                {% for cat in categories %}
+                                    <li><a class="dropdown-item" href="{% url 'marketplace:product_list' %}?category={{ cat.id }}">{{ cat.name }}</a></li>
+                                {% endfor %}
+                            {% else %}
+                                <li><a class="dropdown-item" href="{% url 'marketplace:product_list' %}?category=1">Vegetables</a></li>
+                                <li><a class="dropdown-item" href="{% url 'marketplace:product_list' %}?category=2">Fruits</a></li>
+                                <li><a class="dropdown-item" href="{% url 'marketplace:product_list' %}?category=3">Organic Products</a></li>
+                                <li><a class="dropdown-item" href="{% url 'marketplace:product_list' %}?category=4">Dairy</a></li>
+                                <li><a class="dropdown-item" href="{% url 'marketplace:product_list' %}?category=5">Grains</a></li>
+                                <li><a class="dropdown-item" href="{% url 'marketplace:product_list' %}?category=6">Seeds</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}">Contact</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="{% url 'marketplace:view_cart' %}">
+                                <i class="bi bi-cart3"></i> Cart
+                                {% if cart_count > 0 %}
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ cart_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% if user.customer %}
+                                    <li><a class="dropdown-item" href="{% url 'accounts:customer_profile' %}"><i class="bi bi-person"></i> Profile</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'marketplace:my_orders' %}"><i class="bi bi-box"></i> My Orders</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'marketplace:view_wishlist' %}"><i class="bi bi-heart"></i> Wishlist</a></li>
+                                {% elif user.farmer %}
+                                    <li><a class="dropdown-item" href="{% url 'accounts:farmer_profile' %}"><i class="bi bi-person"></i> Profile</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'farmer:dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'farmer:inventory' %}"><i class="bi bi-box-seam"></i> Inventory</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'farmer:sales_report' %}"><i class="bi bi-graph-up"></i> Sales Report</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person"></i> Register
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'accounts:customer_register' %}"><i class="bi bi-person-plus"></i> As Customer</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:farmer_register' %}"><i class="bi bi-person-workspace"></i> As Farmer</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item"><a class="nav-link btn btn-outline-light btn-sm ms-2 px-3" href="{% url 'accounts:login' %}"><i class="bi bi-box-arrow-in-right"></i> Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="vff-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="brand-text"><i class="fas fa-leaf"></i> Vetri Farm Fresh</h5>
+                    <p class="tagline">Fresh From Farm to Home — delivering the finest agricultural produce directly from local farmers to your doorstep, straight from nature.</p>
+
+                    <h5 style="margin-top: 1.5rem;">Vetri Farm Fresh</h5>
+                    <ul>
+                        <li><a href="{% url 'about' %}"><i class="fas fa-chevron-right"></i>About Us</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i>Our Farmers</a></li>
+                        <li><a href="{% url 'marketplace:product_list' %}?organic=true"><i class="fas fa-chevron-right"></i>Organic Products</a></li>
+                        <li><a href="{% url 'marketplace:product_list' %}?category=1"><i class="fas fa-chevron-right"></i>Fresh Vegetables</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i>Farm Delivery</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i>Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i>Terms &amp; Conditions</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5>Customer Support</h5>
+                    <ul>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i>FAQs</a></li>
+                        <li><a href="{% url 'contact' %}"><i class="fas fa-chevron-right"></i>Contact Us</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i>Delivery Information</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i>Payment Options</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i>Return Policy</a></li>
+                        <li><a href="{% url 'accounts:farmer_register' %}"><i class="fas fa-chevron-right"></i>Vendor Registration</a></li>
+                    </ul>
+
+                    <h5 style="margin-top: 1.8rem;">Newsletter</h5>
+                    <p style="color: #9e9e9e; font-size: 0.85rem; margin-bottom: 8px;">Get fresh farm updates!</p>
+                    <div class="newsletter-input">
+                        <input type="email" placeholder="Your email address">
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5>Quick Categories</h5>
+                    <ul>
+                        <li><a href="{% url 'marketplace:product_list' %}?category=1"><i class="fas fa-chevron-right"></i>Vegetables</a></li>
+                        <li><a href="{% url 'marketplace:product_list' %}?category=2"><i class="fas fa-chevron-right"></i>Fruits</a></li>
+                        <li><a href="{% url 'marketplace:product_list' %}?category=4"><i class="fas fa-chevron-right"></i>Dairy Products</a></li>
+                        <li><a href="{% url 'marketplace:product_list' %}?category=3"><i class="fas fa-chevron-right"></i>Organic Foods</a></li>
+                        <li><a href="{% url 'marketplace:product_list' %}?category=5"><i class="fas fa-chevron-right"></i>Seeds &amp; Grains</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i>Farm Fresh Combos</a></li>
+                    </ul>
+
+                    <h5 style="margin-top: 1.8rem;">Contact Info</h5>
+                    <div class="contact-info">
+                        <p><i class="fas fa-map-marker-alt"></i>123 Farm Street, Agriculture Nagar, Coimbatore, Tamil Nadu</p>
+                        <p><i class="fas fa-phone-alt"></i>+91 98765 43210</p>
+                        <p><i class="fas fa-envelope"></i>info@vetrifarmfresh.com</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5>Download App</h5>
+                    <p style="color: #9e9e9e; font-size: 0.85rem;">Get the freshest produce at your fingertips</p>
+                    <div class="app-buttons">
+                        <a href="#" class="app-btn">
+                            <i class="fab fa-google-play"></i>
+                            <span class="btn-text">
+                                <small>Get it on</small>
+                                <span>Google Play</span>
+                            </span>
+                        </a>
+                        <a href="#" class="app-btn">
+                            <i class="fab fa-app-store-ios"></i>
+                            <span class="btn-text">
+                                <small>Download on</small>
+                                <span>App Store</span>
+                            </span>
+                        </a>
+                    </div>
+
+                    <h5 style="margin-top: 1.5rem;">Follow Us</h5>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Twitter/X"><i class="fab fa-x-twitter"></i></a>
+                        <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="footer-divider">
+
+            <div class="footer-bottom">
+                <p><i class="far fa-copyright"></i> 2026 <strong>Vetri Farm Fresh</strong>. All Rights Reserved. | Made with <i class="fas fa-heart" style="color: #e53935;"></i> for farmers</p>
+                <div class="payment-methods">
+                    <span>We Accept:</span>
+                    <i class="fab fa-cc-visa" title="Visa"></i>
+                    <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+                    <i class="fab fa-cc-amex" title="Amex"></i>
+                    <i class="fab fa-cc-rupay" title="RuPay"></i>
+                    <i class="fab fa-google-pay" title="Google Pay"></i>
+                    <i class="fab fa-cc-paypal" title="PayPal"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

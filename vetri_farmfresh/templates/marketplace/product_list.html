@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Products - Vetri Farm Fresh{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-funnel"></i> Filters</h5>
+                    <form method="get">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Category</label>
+                            <select name="category" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Categories</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Sort By</label>
+                            <select name="sort" class="form-select" onchange="this.form.submit()">
+                                <option value="">Default</option>
+                                <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                                <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                                <option value="latest" {% if sort_by == 'latest' %}selected{% endif %}>Latest First</option>
+                                <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name A-Z</option>
+                            </select>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" name="organic" class="form-check-input" id="organicFilter" value="true" onchange="this.form.submit()" {% if organic_only %}checked{% endif %}>
+                            <label class="form-check-label" for="organicFilter">Organic Only</label>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Apply Filters</button>
+                        <a href="{% url 'marketplace:product_list' %}" class="btn btn-outline-secondary w-100 mt-2">Clear All</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">
+                    {% if search_query %}
+                        Search: "{{ search_query }}"
+                    {% else %}
+                        All Products
+                    {% endif %}
+                    <span class="text-muted fs-6">({{ page_obj.paginator.count }} items)</span>
+                </h4>
+                <form class="d-flex" method="get">
+                    {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                    {% if sort_by %}<input type="hidden" name="sort" value="{{ sort_by }}">{% endif %}
+                    {% if organic_only %}<input type="hidden" name="organic" value="true">{% endif %}
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Search products..." value="{{ search_query|default:'' }}">
+                        <button class="btn btn-success" type="submit"><i class="bi bi-search"></i></button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row g-3">
+                {% for product in page_obj %}
+                    <div class="col-md-4">
+                        <div class="card product-card h-100 border-0 shadow-sm">
+                            {% if product.product_image %}
+                                <img src="{{ product.product_image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 180px;">
+                                    <i class="bi bi-image text-white fs-1"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="card-title fw-bold mb-0">{{ product.name }}</h6>
+                                    {% if product.is_organic %}
+                                        <span class="badge bg-success" style="font-size: 10px;">Organic</span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-muted small mb-1">{{ product.farmer.farm_name }}</p>
+                                <p class="text-truncate small text-muted mb-2">{{ product.description|truncatewords:10 }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-success">₹{{ product.price }}/{{ product.unit }}</span>
+                                    {% if product.stock_quantity > 0 %}
+                                        <small class="text-success">In Stock</small>
+                                    {% else %}
+                                        <small class="text-danger">Out of Stock</small>
+                                    {% endif %}
+                                </div>
+                                <div class="mt-2 d-flex gap-2">
+                                    <a href="{% url 'marketplace:product_detail' product.id %}" class="btn btn-sm btn-outline-success flex-grow-1">View Details</a>
+                                    {% if product.stock_quantity > 0 %}
+                                        <a href="{% url 'marketplace:add_to_cart' product.id %}" class="btn btn-sm btn-success"><i class="bi bi-cart-plus"></i></a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-search display-1 text-muted"></i>
+                        <h5 class="mt-3">No products found</h5>
+                        <p class="text-muted">Try adjusting your search or filter criteria.</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if page_obj.paginator.num_pages > 1 %}
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page=1{% if selected_category %}&category={{ selected_category }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if organic_only %}&organic=true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">First</a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if organic_only %}&organic=true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">Previous</a></li>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if organic_only %}&organic=true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if organic_only %}&organic=true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if organic_only %}&organic=true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">Last</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

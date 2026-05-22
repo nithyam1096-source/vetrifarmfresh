@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Farmer Dashboard - Vetri Farm Fresh{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-speedometer2"></i> Farmer Dashboard</h2>
+        <div>
+            <a href="{% url 'farmer:add_product' %}" class="btn btn-success"><i class="bi bi-plus-circle"></i> Add Product</a>
+            <a href="{% url 'farmer:inventory' %}" class="btn btn-outline-success"><i class="bi bi-box-seam"></i> Inventory</a>
+        </div>
+    </div>
+
+    {% if not farmer.is_approved %}
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i> Your account is pending admin approval. You can add products but they won't be visible until your farm is approved.
+        </div>
+    {% endif %}
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-box-seam display-6"></i>
+                    <h3 class="fw-bold">{{ total_products }}</h3>
+                    <p class="mb-0">Total Products</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-warning text-dark">
+                <div class="card-body text-center">
+                    <i class="bi bi-exclamation-circle display-6"></i>
+                    <h3 class="fw-bold">{{ low_stock }}</h3>
+                    <p class="mb-0">Low Stock Items</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-danger text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-x-circle display-6"></i>
+                    <h3 class="fw-bold">{{ out_of_stock }}</h3>
+                    <p class="mb-0">Out of Stock</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-cart display-6"></i>
+                    <h3 class="fw-bold">{{ orders.count }}</h3>
+                    <p class="mb-0">Total Orders</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-bold">Your Products</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products|slice:":5" %}
+                                    <tr>
+                                        <td>{{ product.name }}</td>
+                                        <td>₹{{ product.price }}</td>
+                                        <td>{{ product.stock_quantity }}</td>
+                                        <td>
+                                            {% if product.availability_status %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td><a href="{% url 'farmer:edit_product' product.id %}" class="btn btn-sm btn-outline-primary">Edit</a></td>
+                                    </tr>
+                                {% empty %}
+                                    <tr><td colspan="5" class="text-center text-muted">No products added yet.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if products.count > 5 %}
+                        <a href="{% url 'farmer:inventory' %}" class="btn btn-sm btn-outline-success">View All Products</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-bold">Recent Orders</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in orders|slice:":10" %}
+                                    <tr>
+                                        <td>#{{ item.order.id }}</td>
+                                        <td>{{ item.product.name }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>
+                                            {% if item.order.order_status == 'delivered' %}
+                                                <span class="badge bg-success">{{ item.order.get_order_status_display }}</span>
+                                            {% elif item.order.order_status == 'cancelled' %}
+                                                <span class="badge bg-danger">{{ item.order.get_order_status_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-info">{{ item.order.get_order_status_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr><td colspan="4" class="text-center text-muted">No orders yet.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="{% url 'farmer:orders' %}" class="btn btn-sm btn-outline-success">View All Orders</a>
+                    <a href="{% url 'farmer:sales_report' %}" class="btn btn-sm btn-outline-primary">Sales Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

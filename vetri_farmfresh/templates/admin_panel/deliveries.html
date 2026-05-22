@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Deliveries - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-4"><i class="bi bi-truck"></i> Delivery Management</h2>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Delivery ID</th>
+                            <th>Order #</th>
+                            <th>Delivery Agent</th>
+                            <th>Status</th>
+                            <th>Location</th>
+                            <th>Estimated Time</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for delivery in deliveries %}
+                            <tr>
+                                <td>#{{ delivery.id }}</td>
+                                <td>#{{ delivery.order.id }}</td>
+                                <td>{{ delivery.delivery_agent.user.get_full_name|default:"Unassigned" }}</td>
+                                <td>
+                                    {% if delivery.delivery_status == 'delivered' %}
+                                        <span class="badge bg-success">{{ delivery.get_delivery_status_display }}</span>
+                                    {% elif delivery.delivery_status == 'failed' %}
+                                        <span class="badge bg-danger">{{ delivery.get_delivery_status_display }}</span>
+                                    {% elif delivery.delivery_status == 'out_for_delivery' %}
+                                        <span class="badge bg-warning text-dark">{{ delivery.get_delivery_status_display }}</span>
+                                    {% else %}
+                                        <span class="badge bg-info">{{ delivery.get_delivery_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td><small>{{ delivery.current_location|default:"-" }}</small></td>
+                                <td><small>{{ delivery.estimated_delivery_time|date:"d M Y, h:i A"|default:"-" }}</small></td>
+                                <td><small>{{ delivery.created_at|date:"d M Y" }}</small></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

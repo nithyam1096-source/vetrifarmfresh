@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}About Us - Vetri Farm Fresh{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-lg-6">
+            <h1 class="fw-bold">About Vetri Farm Fresh</h1>
+            <p class="text-muted lead">Connecting farmers directly with consumers since 2024</p>
+            <p>Vetri Farm Fresh is an innovative agricultural e-commerce platform that bridges the gap between local farmers and consumers. We believe in supporting local agriculture, promoting sustainable farming practices, and providing fresh, healthy food to communities.</p>
+            <p>Our platform enables farmers to list their products directly, manage inventory, and reach customers without intermediaries. Customers get farm-fresh products at fair prices with convenient delivery options.</p>
+        </div>
+        <div class="col-lg-6">
+            <img src="https://images.unsplash.com/photo-1500595046743-cd271d694b30?w=600" alt="Farm" class="img-fluid rounded-4 shadow">
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <h2 class="text-center fw-bold mb-4">Our Mission & Values</h2>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-hand-thumbs-up fs-1 text-success"></i>
+                    <h5>Quality First</h5>
+                    <p class="text-muted">We ensure only the freshest, highest quality products reach your table.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-people fs-1 text-success"></i>
+                    <h5>Farmer Support</h5>
+                    <p class="text-muted">Empowering local farmers with technology and direct market access.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-globe fs-1 text-success"></i>
+                    <h5>Sustainability</h5>
+                    <p class="text-muted">Promoting organic farming and sustainable agricultural practices.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <h2 class="text-center fw-bold mb-4">How It Works</h2>
+        <div class="col-md-3 text-center">
+            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <span class="fw-bold fs-4">1</span>
+            </div>
+            <h5>Browse Products</h5>
+            <p class="text-muted">Explore fresh agricultural products from local farmers.</p>
+        </div>
+        <div class="col-md-3 text-center">
+            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <span class="fw-bold fs-4">2</span>
+            </div>
+            <h5>Place Order</h5>
+            <p class="text-muted">Add items to cart and choose your delivery slot.</p>
+        </div>
+        <div class="col-md-3 text-center">
+            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <span class="fw-bold fs-4">3</span>
+            </div>
+            <h5>Farmer Prepares</h5>
+            <p class="text-muted">Farmer harvests and packs fresh produce for you.</p>
+        </div>
+        <div class="col-md-3 text-center">
+            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <span class="fw-bold fs-4">4</span>
+            </div>
+            <h5>Doorstep Delivery</h5>
+            <p class="text-muted">Get fresh products delivered at your chosen time.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

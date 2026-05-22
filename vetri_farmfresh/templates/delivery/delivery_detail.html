@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Delivery #{{ delivery.id }} - Vetri Farm Fresh{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'delivery:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'delivery:assigned_deliveries' %}">Deliveries</a></li>
+            <li class="breadcrumb-item active">Delivery #{{ delivery.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold">Delivery #{{ delivery.id }}</h4>
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Status</small>
+                            {% if delivery.delivery_status == 'delivered' %}
+                                <span class="badge bg-success fs-6">{{ delivery.get_delivery_status_display }}</span>
+                            {% elif delivery.delivery_status == 'out_for_delivery' %}
+                                <span class="badge bg-warning text-dark fs-6">{{ delivery.get_delivery_status_display }}</span>
+                            {% elif delivery.delivery_status == 'failed' %}
+                                <span class="badge bg-danger fs-6">{{ delivery.get_delivery_status_display }}</span>
+                            {% else %}
+                                <span class="badge bg-info fs-6">{{ delivery.get_delivery_status_display }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Current Location</small>
+                            <strong>{{ delivery.current_location|default:"Not updated" }}</strong>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Estimated Delivery</small>
+                            <strong>{{ delivery.estimated_delivery_time|date:"d M Y, h:i A"|default:"Not set" }}</strong>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Delivered At</small>
+                            <strong>{{ delivery.delivered_at|date:"d M Y, h:i A"|default:"-" }}</strong>
+                        </div>
+                    </div>
+                    {% if delivery.notes %}
+                        <div class="mb-3">
+                            <small class="text-muted d-block">Notes</small>
+                            <p>{{ delivery.notes }}</p>
+                        </div>
+                    {% endif %}
+                    <a href="{% url 'delivery:update_status' delivery.id %}" class="btn btn-primary"><i class="bi bi-pencil"></i> Update Status</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Order Details</h5>
+                    <p class="mb-1"><strong>Order #{{ delivery.order.id }}</strong></p>
+                    <p class="mb-1"><small>Customer: {{ delivery.order.customer.user.get_full_name|default:delivery.order.customer.user.username }}</small></p>
+                    <p class="mb-1"><small>Phone: {{ delivery.order.customer.phone }}</small></p>
+                    <p class="mb-1"><small>Delivery Slot: {{ delivery.order.delivery_slot }}</small></p>
+                    <p class="mb-1"><small>Address: {{ delivery.order.delivery_address }}</small></p>
+                    <p class="mb-0"><small>Amount: ₹{{ delivery.order.total_amount }}</small></p>
+                    <hr>
+                    <h6>Items</h6>
+                    {% for item in delivery.order.items.all %}
+                        <div class="d-flex justify-content-between small">
+                            <span>{{ item.product_name }} x{{ item.quantity }}</span>
+                            <span>₹{{ item.quantity|floatformat:"0" }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

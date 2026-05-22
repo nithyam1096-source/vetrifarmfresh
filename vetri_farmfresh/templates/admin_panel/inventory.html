@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Inventory - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-4"><i class="bi bi-box-seam"></i> Inventory Management</h2>
+    
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm bg-warning">
+                <div class="card-body text-center">
+                    <i class="bi bi-exclamation-triangle display-6"></i>
+                    <h3 class="fw-bold">{{ low_stock.count }}</h3>
+                    <p class="mb-0">Low Stock Items (less than 10)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm bg-danger text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-x-circle display-6"></i>
+                    <h3 class="fw-bold">{{ out_of_stock.count }}</h3>
+                    <p class="mb-0">Out of Stock Items</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if low_stock %}
+        <div class="card border-0 shadow-sm mb-4 border-warning">
+            <div class="card-header bg-warning fw-bold">Low Stock Products</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Farmer</th>
+                                <th>Stock</th>
+                                <th>Min Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in low_stock %}
+                                <tr class="table-warning">
+                                    <td class="fw-bold">{{ p.name }}</td>
+                                    <td>{{ p.farmer.farm_name }}</td>
+                                    <td>{{ p.stock_quantity }}</td>
+                                    <td>10</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-danger">
+                        <tr>
+                            <th>Product</th>
+                            <th>Farmer</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Harvest Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                            <tr class="{% if product.stock_quantity < 10 %}table-warning{% elif not product.availability_status %}table-secondary{% endif %}">
+                                <td class="fw-bold">{{ product.name }}</td>
+                                <td>{{ product.farmer.farm_name }}</td>
+                                <td>{{ product.category.name }}</td>
+                                <td class="{% if product.stock_quantity < 10 %}text-danger fw-bold{% endif %}">{{ product.stock_quantity }}</td>
+                                <td>₹{{ product.price }}</td>
+                                <td>
+                                    {% if product.availability_status %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td><small>{{ product.harvest_date|date:"d M Y"|default:"-" }}</small></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

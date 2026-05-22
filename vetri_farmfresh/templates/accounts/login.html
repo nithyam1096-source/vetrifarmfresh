@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Login - Vetri Farm Fresh{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-circle display-1 text-success"></i>
+                        <h3 class="fw-bold">Welcome Back</h3>
+                        <p class="text-muted">Login to your account</p>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold">Login</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p class="mb-1">Don't have an account?</p>
+                        <a href="{% url 'accounts:customer_register' %}" class="text-success">Register as Customer</a> |
+                        <a href="{% url 'accounts:farmer_register' %}" class="text-success">Register as Farmer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Manage Farmers - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-4"><i class="bi bi-person-workspace"></i> Manage Farmers</h2>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Farm Name</th>
+                            <th>Owner</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                            <th>Address</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for farmer in farmers %}
+                            <tr>
+                                <td class="fw-bold">{{ farmer.farm_name }}</td>
+                                <td>{{ farmer.user.get_full_name|default:farmer.user.username }}</td>
+                                <td>{{ farmer.user.email }}</td>
+                                <td>{{ farmer.contact_number }}</td>
+                                <td><small>{{ farmer.farm_address|truncatewords:6 }}</small></td>
+                                <td>
+                                    {% if farmer.is_approved %}
+                                        <span class="badge bg-success">Approved</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'admin_approve_farmer' farmer.id %}" class="btn btn-sm btn-{% if farmer.is_approved %}warning{% else %}success{% endif %}" onclick="return confirm('{% if farmer.is_approved %}Disapprove{% else %}Approve{% endif %} {{ farmer.farm_name }}?')">
+                                        {% if farmer.is_approved %}<i class="bi bi-x-circle"></i> Disapprove{% else %}<i class="bi bi-check-circle"></i> Approve{% endif %}
+                                    </a>
+                                    <a href="{% url 'admin_block_user' farmer.user.id %}" class="btn btn-sm btn-{% if farmer.user.is_active %}danger{% else %}success{% endif %}">
+                                        {% if farmer.user.is_active %}<i class="bi bi-ban"></i> Block{% else %}<i class="bi bi-check"></i> Unblock{% endif %}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

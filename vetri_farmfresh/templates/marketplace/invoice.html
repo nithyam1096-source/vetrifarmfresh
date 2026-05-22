@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Invoice #{{ order.id }} - Vetri Farm Fresh</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 40px; }
+        .invoice-header { border-bottom: 3px solid #198754; padding-bottom: 20px; margin-bottom: 20px; }
+        .table th { background: #198754; color: white; }
+        .total-row { font-size: 1.2em; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="invoice-header">
+        <div class="row">
+            <div class="col-6">
+                <h2 class="text-success"><i class="bi bi-tree-fill"></i> Vetri Farm Fresh</h2>
+                <p class="mb-0">123 Farm Street, Agriculture Nagar</p>
+                <p>Coimbatore, Tamil Nadu - 641001</p>
+            </div>
+            <div class="col-6 text-end">
+                <h3>INVOICE</h3>
+                <p class="mb-0">Invoice #: INV-{{ order.id }}</p>
+                <p>Date: {{ order.ordered_date|date:"d M Y" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-6">
+            <h6>Bill To:</h6>
+            <p class="mb-0">{{ order.customer.user.get_full_name }}</p>
+            <p class="mb-0">{{ order.delivery_address }}</p>
+            <p>Phone: {{ order.customer.phone }}</p>
+        </div>
+        <div class="col-6 text-end">
+            <h6>Delivery Slot:</h6>
+            <p>{{ order.delivery_slot }}</p>
+        </div>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.price }}</td>
+                    <td>₹{{ item.quantity|floatformat:"0" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="4" class="text-end">Total Amount:</td>
+                <td>₹{{ order.total_amount }}</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-end">Payment Method:</td>
+                <td>{{ order.get_payment_method_display }}</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-end">Payment Status:</td>
+                <td>{{ order.payment_status|title }}</td>
+            </tr>
+        </tfoot>
+    </table>
+    <div class="text-center mt-4 text-muted">
+        <p>Thank you for shopping with Vetri Farm Fresh!</p>
+        <p><small>This is a computer-generated invoice.</small></p>
+    </div>
+</body>
+</html>

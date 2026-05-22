@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Orders - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-cart"></i> All Orders</h2>
+        <div>
+            <a href="?status=" class="btn btn-sm btn-outline-secondary {% if not request.GET.status %}active{% endif %}">All</a>
+            <a href="?status=pending" class="btn btn-sm btn-outline-warning {% if request.GET.status == 'pending' %}active{% endif %}">Pending</a>
+            <a href="?status=delivered" class="btn btn-sm btn-outline-success {% if request.GET.status == 'delivered' %}active{% endif %}">Delivered</a>
+            <a href="?status=cancelled" class="btn btn-sm btn-outline-danger {% if request.GET.status == 'cancelled' %}active{% endif %}">Cancelled</a>
+        </div>
+    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-warning">
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Payment</th>
+                            <th>Method</th>
+                            <th>Items</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td class="fw-bold">#{{ order.id }}</td>
+                                <td>{{ order.customer.user.get_full_name|default:order.customer.user.username }}</td>
+                                <td>₹{{ order.total_amount }}</td>
+                                <td>
+                                    {% if order.payment_status == 'completed' %}
+                                        <span class="badge bg-success">Paid</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ order.get_payment_method_display }}</td>
+                                <td>{{ order.items.count }}</td>
+                                <td><small>{{ order.ordered_date|date:"d M Y" }}</small></td>
+                                <td>
+                                    {% if order.order_status == 'delivered' %}
+                                        <span class="badge bg-success">{{ order.get_order_status_display }}</span>
+                                    {% elif order.order_status == 'cancelled' %}
+                                        <span class="badge bg-danger">{{ order.get_order_status_display }}</span>
+                                    {% elif order.order_status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">{{ order.get_order_status_display }}</span>
+                                    {% else %}
+                                        <span class="badge bg-info">{{ order.get_order_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
